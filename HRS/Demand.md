@@ -1,5 +1,6 @@
 
 # ユースケース：部屋を登録する
+![部屋を登録する](https://raw.githubusercontent.com/YuIto1/Software5/main/HRS/Activity/%E9%83%A8%E5%B1%8B%E3%82%92%E7%99%BB%E9%8C%B2%E3%81%99%E3%82%8B.png)
 - アクタ：ホテル管理者
 - 目的：ホテル予約システム(HRS)にホテルの部屋の情報を登録する
 - 事前条件：(なし)
@@ -19,6 +20,7 @@
 
 
 # ユースケース：部屋情報を変更する
+![部屋情報を変更する](https://raw.githubusercontent.com/YuIto1/Software5/main/HRS/Activity/%E9%83%A8%E5%B1%8B%E6%83%85%E5%A0%B1%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B.png)
 - アクタ：ホテル管理者
 - 目的：ホテル予約システム(HRS)に登録されているホテルの部屋の情報を変更する
 - 事後条件：ホテルの部屋の情報が変更されている
@@ -40,6 +42,7 @@
 
 
 # ユースケース：部屋を検索する
+![部屋を検索する](https://raw.githubusercontent.com/YuIto1/Software5/main/HRS/Activity/%E9%83%A8%E5%B1%8B%E3%82%92%E6%A4%9C%E7%B4%A2%E3%81%99%E3%82%8B.png)
 - アクタ：顧客、ホテルの受付係
 - 目的：顧客が希望する料金範囲と日程を満たす全ての部屋について空き部屋を検索する。
 - 事前条件：（なし）
@@ -59,6 +62,7 @@
 
 
 # ユースケース：部屋を予約する
+![部屋を予約する](https://raw.githubusercontent.com/YuIto1/Software5/main/HRS/Activity/%E9%83%A8%E5%B1%8B%E3%82%92%E4%BA%88%E7%B4%84%E3%81%99%E3%82%8B.png)
 - アクタ：顧客
 - 目的：顧客が希望する料金範囲と日程を満たす部屋を予約する。
 - 事前条件：「部屋を検索する」で警告がでていない。
@@ -76,6 +80,7 @@
 
 
 # ユースケース：予約情報を確認する
+![予約情報を確認する](https://raw.githubusercontent.com/YuIto1/Software5/main/HRS/Activity/%E4%BA%88%E7%B4%84%E6%83%85%E5%A0%B1%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B.png)
 - アクタ：ホテル受付
 - 目的：ホテル予約システム(HRS)に登録されているホテルの部屋の情報を確認する
 - 事前条件：事前条件：部屋が予約されている
