@@ -1,8 +1,8 @@
 public class Reservation {
-    private String date;
-    private String customerName;
-    private String customerEmail;
-    private int roomNumber;
+    public String date;
+    public String customerName;
+    public String customerEmail;
+    public int roomNumber;
 
     public Reservation(String date, String customerName, String customerEmail, int roomNumber) {
         this.date = date;
@@ -13,9 +13,5 @@ public class Reservation {
 
     public void create() {
         System.out.println("予約を作成しました: " + customerName + "（部屋番号: " + roomNumber + "）");
-    }
-
-    public int getRoomNumber() {
-        return roomNumber;
     }
 }
