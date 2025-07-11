@@ -3,7 +3,7 @@ import java.util.List;
 
 public class RoomReservationControl {
 
-    private List<Reservation> reservations;
+    public List<Reservation> reservations;
 
     public RoomType selectRoomType(String type) {
         if (type.equalsIgnoreCase("standard")) {
