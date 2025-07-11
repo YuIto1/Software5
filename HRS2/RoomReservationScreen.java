@@ -44,11 +44,7 @@ public class RoomReservationScreen {
         System.out.print("予約日を入力してください（例: 2025/06/27）: ");
         String date = scanner.nextLine();
 
-        System.out.print("部屋番号を入力してください（例: 501）: ");
-        int roomNumber = scanner.nextInt();
-
-        Room room = new Room(roomNumber);
-        Reservation reservation = control.makeReservation(date, name, email, room);
+        Reservation reservation = control.makeReservation(date, name, email);
         reservation.create();
 
         scanner.close();
