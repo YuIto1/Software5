@@ -3,7 +3,7 @@ import java.util.List;
 
 public class RoomReservationControl {
 
-    public List<Reservation> reservations;
+    private List<Reservation> reservations;
 
     public RoomType selectRoomType(String type) {
         if (type.equalsIgnoreCase("standard")) {
@@ -21,19 +21,23 @@ public class RoomReservationControl {
         return reservation;
     }
 
+    public void addRoom(){
+
+    }
+
     public void displayPrice(RoomType roomType) {
         System.out.println("料金は " + roomType.getPrice() + " 円です。");
     }
 
     public void displayAllReservations() {
-        if (reservations.isEmpty()) {
+        if (reservations == null || reservations.isEmpty()) {
             System.out.println("現在、予約はありません。");
             return;
         }
 
         System.out.println("予約一覧：");
         for (Reservation r : reservations) {
-            System.out.println("- " + r.getRoomNumber() + "号室：" + r.customerName + "（" + r.date + "）");
+            System.out.println("- " + r.roomNumber + "号室：" + r.customerName + "（" + r.date + "）");
         }
     }
 }
