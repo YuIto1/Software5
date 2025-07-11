@@ -14,7 +14,9 @@ public class RoomReservationScreen {
             System.out.print("操作を選択してください。（0:部屋登録, 1: 予約情報）");
             int op = scanner.nextInt();
             if (op == 0) {
-                control.addRoom();
+                System.out.print("登録する部屋の部屋番号 : ");
+                int roomNumber = scanner.nextInt();
+                control.addRoom(roomNumber);
             }else if(op == 1){
                 control.displayAllReservations();
             }
