@@ -1,5 +1,5 @@
 public class Room {
-    private int roomNumber;
+    private int roomNumber = 0;
 
     public Room(int roomNumber) {
         this.roomNumber = roomNumber;
