@@ -6,6 +6,10 @@ public class RoomReservationScreen {
     public void start() {
         Scanner scanner = new Scanner(System.in);
 
+        System.out.print("管理者ですか（y / [n]）: ");
+        String isAdminString = scanner.nextLine();
+        boolean isAdmin = 
+
         System.out.print("部屋タイプを選んでください（standard / suite）: ");
         String roomTypeStr = scanner.nextLine();
 
