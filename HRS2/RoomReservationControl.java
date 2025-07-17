@@ -7,25 +7,52 @@ public class RoomReservationControl {
 
     private List<Reservation> reservations;
     private List<Room> rooms;
+    private StandardRoom standardRoom;
+    private SuiteRoom suiteRoom;
+    private String standardRoomFile = "standardRoom.csv";
+    private String suiteRoomFile = "suiteRoom.csv";
 
     public RoomReservationControl() {
         rooms = new ArrayList<>();
         reservations = new ArrayList<>();
-        loadRoomsFromFile("room.csv");
+        standardRoom = new StandardRoom(loadRoomsFromFile(standardRoomFile));
+        suiteRoom = new SuiteRoom(loadRoomsFromFile(suiteRoomFile));
         loadReservationsFromFile("reservation.csv");
     }
 
     public RoomType selectRoomType(String type) {
         if (type.equalsIgnoreCase("standard")) {
-            return new StandardRoom();
+            return standardRoom;
         } else if (type.equalsIgnoreCase("suite")) {
-            return new SuiteRoom();
+            return suiteRoom;
         }
         return null;
     }
 
-    public Reservation makeReservation(String date, String name, String email, RoomType requestedType) {
-        Room room = assignAvailableRoom(requestedType);
+    public boolean isValidRoomType(String roomType) {
+        if (roomType.equals("standard") || roomType.equals("suite")) {
+            return true;
+        }
+        return false;
+    }
+
+    public Reservation makeReservation(String date, String name, String email, String requestedType) {
+        RoomType roomType;
+        String file;
+        if (requestedType.equals("standard")) {
+            roomType = standardRoom;
+            file = standardRoomFile;
+        }else if(requestedType.equals("suite")) {
+            roomType = suiteRoom;
+            file = suiteRoomFile;
+        }else{
+            roomType = null;
+            file = null;
+            System.out.println("無効な部屋種別です");
+        }
+
+        Room room = roomType.assignAvailableRoom();
+
         if (room == null) {
             System.out.println("空室がありません。予約できませんでした。");
             return null;
@@ -34,43 +61,61 @@ public class RoomReservationControl {
         reservations.add(reservation);
         reservation.create();
         saveReservationsToFile("reservation.csv");
-        saveRoomsToFile("room.csv");
+        saveRoomsToFile(file, roomType);
         return reservation;
     }
 
-    public void addRoom(int roomNumber, RoomType roomType, String roomInformation){
-        Room room = new Room(roomNumber, roomType, roomInformation);
-        rooms.add(room);
-        room.create();
-        saveRoomsToFile("room.csv");
-    }
-
-    public void addRoom(int roomNumber, RoomType roomType){
-        addRoom(roomNumber, roomType, "");
-    }
-
-    public Room assignAvailableRoom(RoomType requestedType) {
-        for (Room room : rooms) {
-            if (!room.getIsReserved() && room.getRoomType().getClass() == requestedType.getClass()) {
-                room.setReserve();
-                return room;
-            }
+    public void addRoom(int roomNumber, String requestedType, String roomInformation){
+        RoomType roomType;
+        String file;
+        if (requestedType.equals("standard")) {
+            roomType = standardRoom;
+            file = standardRoomFile;
+        }else if(requestedType.equals("suite")) {
+            roomType = suiteRoom;
+            file = suiteRoomFile;
+        }else{
+            roomType = null;
+            file = null;
+            System.out.println("無効な部屋種別です");
         }
-        return null;
+
+        Room room = new Room(roomNumber, requestedType, roomInformation);
+        roomType.add(room);
+        room.create();
+        saveRoomsToFile(file, roomType);
+    }
+
+    public void addRoom(int roomNumber, String requestedType){
+        addRoom(roomNumber, requestedType, "");
     }
 
     public Room findRoomByNumber(int roomNumber) {
-        for (Room room : rooms) {
+        for (Room room : standardRoom.getRooms()) {
             if (room.getRoomNumber() == roomNumber) {
                 return room;
             }
         }
+        
+        for (Room room : suiteRoom.getRooms()) {
+            if (room.getRoomNumber() == roomNumber) {
+                return room;
+            }
+        }
+
         return null;
     }
 
-
-
-    public void displayPrice(RoomType roomType) {
+    public void displayPrice(String requestedType) {
+        RoomType roomType;
+        if (requestedType.equals("standard")) {
+            roomType = standardRoom;
+        }else if(requestedType.equals("suite")) {
+            roomType = suiteRoom;
+        }else{
+            roomType = null;
+            System.out.println("無効な部屋種別です");
+        }
         System.out.println("料金は " + roomType.getPrice() + " 円です。");
     }
 
@@ -87,7 +132,10 @@ public class RoomReservationControl {
     }
 
     public void deleteRoom(int roomNumber){
-        Iterator<Room> iterator = rooms.iterator();
+        List<Room> targetRooms = standardRoom.getRooms();
+        String file = standardRoomFile;
+
+        Iterator<Room> iterator = targetRooms.iterator();
         while (iterator.hasNext()) {
             Room room = iterator.next();
             if (room.getRoomNumber() == roomNumber) {
@@ -96,23 +144,75 @@ public class RoomReservationControl {
                     return;
                 }
                 iterator.remove();
-                saveRoomsToFile("room.csv");
+                saveRoomsToFile(file, standardRoom);
+                return;
             }
         }
-    }
 
-    public void editRoom(int roomNumber, RoomType roomType, String roomInformation){
-        for (Room room : rooms) {
-            if (room.getRoomNumber() == roomNumber){
+
+        targetRooms = suiteRoom.getRooms();
+        file = suiteRoomFile;
+
+        iterator = targetRooms.iterator();
+        while (iterator.hasNext()) {
+            Room room = iterator.next();
+            if (room.getRoomNumber() == roomNumber) {
                 if (room.getIsReserved()){
                     System.out.println("予約されているため削除できません");
                     return;
                 }
-                room.setRoomType(roomType);
-                room.setInformation(roomInformation);
-                saveRoomsToFile("room.csv");
+                iterator.remove();
+                saveRoomsToFile(file, suiteRoom);
+                return;
             }
         }
+    }
+
+    public void editRoom(int roomNumber, String requestedType, String roomInformation){
+        List<RoomType> roomTypes = new ArrayList<>();
+        String file = "";
+        roomTypes.add(standardRoom);
+        roomTypes.add(suiteRoom);
+        
+        for (RoomType roomType : roomTypes) {
+            if (roomType.getTypeName().equals("standard")){
+                file = standardRoomFile;
+            }else{
+                file = suiteRoomFile;
+            }
+
+            Iterator<Room> iterator = roomType.getRooms().iterator();
+            while (iterator.hasNext()) {
+                Room room = iterator.next();
+                if (room.getRoomNumber() == roomNumber){
+                    if (room.getIsReserved()){
+                        System.out.println("予約されているため削除できません");
+                        return;
+                    }
+                    
+                    room.setRoomType(requestedType);
+                    room.setInformation(roomInformation);
+                    if (roomType.getTypeName().equals(requestedType)){
+                        saveRoomsToFile(file, roomType);
+                        return;
+                    }else{
+                        RoomType newRoomType = selectRoomType(requestedType);
+                        String newfile = "";
+                        if (newRoomType.getTypeName().equals("standard")){
+                            newfile = standardRoomFile;
+                        }else{
+                            newfile = suiteRoomFile;
+                        }
+                        newRoomType.getRooms().add(room);
+                        iterator.remove();
+                        saveRoomsToFile(file, roomType);
+                        saveRoomsToFile(newfile, newRoomType);
+                        return;
+                    }
+                }
+            }
+        }
+
     }
 
     public Reservation findReservation(String customerName, int roomNumber){
@@ -133,7 +233,8 @@ public class RoomReservationControl {
                 room.unsetReserve();
                 iterator.remove();
                 saveReservationsToFile("reservation.csv");
-                saveRoomsToFile("room.csv");
+                saveRoomsToFile(standardRoomFile, standardRoom);
+                saveRoomsToFile(suiteRoomFile, suiteRoom);
             }
         }
     }
@@ -155,7 +256,8 @@ public class RoomReservationControl {
                             reservation0.roomType = room.getRoomType();
                             oldRoom.unsetReserve();
                             room.setReserve();
-                            saveRoomsToFile("room.csv");
+                            saveRoomsToFile(standardRoomFile, standardRoom);
+                            saveRoomsToFile(suiteRoomFile, suiteRoom);
                         }
                     }
                 }
@@ -200,7 +302,7 @@ public class RoomReservationControl {
                     int roomNumber = Integer.parseInt(parts[3]);
                     Room room = findRoomByNumber(roomNumber);
                     if (room != null){
-                        RoomType roomType = room.getRoomType();
+                        String roomType = room.getRoomType();
                         Reservation r = new Reservation(date, name, email, roomNumber, roomType);
                         reservations.add(r);
                     }
@@ -215,16 +317,10 @@ public class RoomReservationControl {
     }
 
 
-    public void saveRoomsToFile(String filename) {
+    public void saveRoomsToFile(String filename, RoomType roomType) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            for (Room room : rooms) {
-                String type = "unknown";
-                if (room.getRoomType() instanceof StandardRoom) {
-                    type = "standard";
-                } else if (room.getRoomType() instanceof SuiteRoom) {
-                    type = "suite";
-                }
-                writer.write(room.getRoomNumber() + "," + type + "," + room.getIsReserved() + "," + room.getInformation());
+            for (Room room : roomType.getRooms()) {
+                writer.write(room.getRoomNumber() + "," + room.getRoomType() + "," + room.getIsReserved() + "," + room.getInformation());
                 writer.newLine();
             }
             System.out.println("部屋情報を保存しました: " + filename);
@@ -233,8 +329,8 @@ public class RoomReservationControl {
         }
     }
 
-    public void loadRoomsFromFile(String filename) {
-        rooms.clear();
+    public List<Room> loadRoomsFromFile(String filename) {
+        List<Room> roomsOut = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line;
@@ -242,18 +338,18 @@ public class RoomReservationControl {
                 String[] parts = line.split(",", -1);
                 if (parts.length >= 4) {
                     int roomNumber = Integer.parseInt(parts[0]);
-                    String type = parts[1];
+                    String roomType = parts[1];
                     boolean isReserved = Boolean.parseBoolean(parts[2]);
                     String roomInformation = parts[3];
-                    RoomType roomType = selectRoomType(type);
-                    if (roomType != null) {
+
+                    if (isValidRoomType(roomType)) {
                         Room room = new Room(roomNumber, roomType, roomInformation);
                         if (isReserved) {
                             room.setReserve();
                         }
-                        rooms.add(room);
+                        roomsOut.add(room);
                     } else {
-                        System.err.println("不正な部屋タイプ: " + type);
+                        System.err.println("不正な部屋タイプ: " + roomType);
                     }
                 } else {
                     System.err.println("不正な部屋データ形式: " + line);
@@ -261,12 +357,12 @@ public class RoomReservationControl {
             }
             reader.close();
             System.out.println("部屋情報を読み込みました: " + filename);
+            return roomsOut;
         } catch (FileNotFoundException e) {
             System.out.println("部屋ファイルが見つかりません。新規作成されます: " + filename);
         } catch (IOException e) {
             System.err.println("部屋ファイルの読み込みエラー: " + e.getMessage());
         }
+        return null;
     }
-
-
 }

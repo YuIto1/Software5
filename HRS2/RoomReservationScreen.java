@@ -17,12 +17,11 @@ public class RoomReservationScreen {
                 System.out.print("登録する部屋の部屋番号 : ");
                 int roomNumber = scanner.nextInt();
                 System.out.print("登録する部屋の種別（standard または suite）: ");
-                String roomTypeStr = scanner.next();
+                String roomType = scanner.next();
                 System.out.print("登録する部屋の情報 : ");
                 String roomInformation = scanner.next();
 
-                RoomType roomType = control.selectRoomType(roomTypeStr);
-                if (roomType != null) {
+                if (control.isValidRoomType(roomType)) {
                     if (roomInformation != null && roomInformation != ""){
                         control.addRoom(roomNumber, roomType, roomInformation);
                     }else{
@@ -48,10 +47,9 @@ public class RoomReservationScreen {
                     }else{
                         System.out.println("変更を行ってください");
                         System.out.print("部屋の種別（standard または suite）: ");
-                        String roomTypeStr = scanner.next();
+                        String roomType = scanner.next();
                         System.out.print("部屋の情報 : ");
                         String roomInformation = scanner.next();
-                        RoomType roomType = control.selectRoomType(roomTypeStr);
 
                         control.editRoom(roomNumber, roomType, roomInformation);
                     }
@@ -94,10 +92,9 @@ public class RoomReservationScreen {
         }
 
         System.out.print("部屋タイプを選んでください（standard / suite）: ");
-        String roomTypeStr = scanner.nextLine();
+        String roomType = scanner.nextLine();
 
-        RoomType roomType = control.selectRoomType(roomTypeStr);
-        if (roomType == null) {
+        if (!control.isValidRoomType(roomType)) {
             System.out.println("無効な部屋タイプが指定されました。");
             scanner.close();
             return;

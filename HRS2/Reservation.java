@@ -3,9 +3,9 @@ public class Reservation {
     public String customerName;
     public String customerEmail;
     public int roomNumber;
-    public RoomType roomType;
+    public String roomType;
 
-    public Reservation(String date, String customerName, String customerEmail, int roomNumber, RoomType roomType) {
+    public Reservation(String date, String customerName, String customerEmail, int roomNumber, String roomType) {
         this.date = date;
         this.customerName = customerName;
         this.customerEmail = customerEmail;

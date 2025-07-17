@@ -1,23 +1,17 @@
 public class Room {
     private int roomNumber = 0;
-    private RoomType roomType;
     private boolean isReserved = false;
-    private String roomTypeString;
+    private String roomType;
     private String roomInformation = "";
 
-    public Room(int roomNumber, RoomType roomType, String roomInformation) {
+    public Room(int roomNumber, String roomType, String roomInformation) {
         this.roomNumber = roomNumber;
         this.roomType = roomType;
         this.roomInformation = roomInformation;
         this.isReserved = false;
-        if(roomType.getClass().toString().contains("Standard")){
-            this.roomTypeString = "standard";
-        }else{
-            this.roomTypeString = "suite";
-        }
     }
 
-    public Room(int roomNumber, RoomType roomType){
+    public Room(int roomNumber, String roomType){
         this(roomNumber, roomType, "");
     }
 
@@ -25,17 +19,12 @@ public class Room {
         return roomNumber;
     }
 
-    public RoomType getRoomType() {
+    public String getRoomType() {
         return roomType;
     }
 
-    public void setRoomType(RoomType roomType){
+    public void setRoomType(String roomType){
         this.roomType = roomType;
-        if(roomType.getClass().toString().contains("Standard")){
-            this.roomTypeString = "standard";
-        }else{
-            this.roomTypeString = "suite";
-        }
     }
 
     public void setReserve(){
@@ -63,6 +52,6 @@ public class Room {
     }
 
     public void info(){
-        System.out.println(roomNumber + ", " + roomTypeString + ", " + roomInformation);
+        System.out.println(roomNumber + ", " + roomType + ", " + roomInformation);
     }
 }
