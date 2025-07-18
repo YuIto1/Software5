@@ -186,7 +186,7 @@ public class RoomReservationControl {
                 Room room = iterator.next();
                 if (room.getRoomNumber() == roomNumber){
                     if (room.getIsReserved()){
-                        System.out.println("予約されているため削除できません");
+                        System.out.println("予約されているため変更できません");
                         return;
                     }
                     
