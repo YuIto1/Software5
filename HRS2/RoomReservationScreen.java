@@ -11,7 +11,7 @@ public class RoomReservationScreen {
         boolean isAdmin = isAdminString.equals("y");
 
         if (isAdmin) {
-            System.out.print("操作を選択してください。（0:部屋登録, 1: 予約情報, 2: 部屋情報変更, 3: 予約情報変更）");
+            System.out.print("操作を選択してください。（0:部屋登録, 1: 予約情報, 2: 部屋情報変更, 3: 予約情報変更, 4: チェックイン, 5: チェックアウト）");
             int op = scanner.nextInt();
             if (op == 0) {
                 System.out.print("登録する部屋の部屋番号 : ");
@@ -57,11 +57,9 @@ public class RoomReservationScreen {
                     System.out.println("無効な部屋が指定されました。");
                 }
             }else if(op == 3){
-                System.out.print("変更する予約の予約者名 : ");
-                String name = scanner.next();
-                System.out.print("変更する予約の部屋番号 : ");
-                int roomNumber = scanner.nextInt();
-                Reservation reservation = control.findReservation(name, roomNumber);
+                System.out.print("変更する予約の予約番号 : ");
+                int reservationId = scanner.nextInt();
+                Reservation reservation = control.findReservation(reservationId);
                 if (reservation != null){
                     reservation.info();
                     System.out.println("予約を削除しますか(y / [n])");
@@ -78,24 +76,44 @@ public class RoomReservationScreen {
                         System.out.print("予約する日付 : ");
                         String date = scanner.next();
                         System.out.print("予約する部屋の部屋番号 : ");
-                        roomNumber = scanner.nextInt();
+                        int roomNumber = scanner.nextInt();
 
                         control.editReservation(reservation, customerName, customerMail, date, roomNumber);
                     }
-                }else{
-                    System.out.println("名前か部屋番号が正しくありません");
                 }
+            }else if (op == 4){
+                System.out.print("変更する予約の予約番号 : ");
+                int reservationId = scanner.nextInt();
+                Reservation reservation = control.findReservation(reservationId);
+                if (reservation != null){
+                    reservation.info();
+                    control.checkIn(reservation);
+                    System.out.println(reservation.checkInStr());
+                }
+            }else if (op == 5){
+                System.out.print("変更する予約の予約番号 : ");
+                int reservationId = scanner.nextInt();
+                Reservation reservation = control.findReservation(reservationId);
+                if (reservation != null){
+                    reservation.info();
+                    control.checkOut(reservation);
+                    System.out.println(reservation.checkInStr());
+                }
+            }else{
+                    System.out.println("名前か部屋番号が正しくありません");
             }
-            
+
             scanner.close();
             return;
         }
 
+        
+            
         System.out.println("何をしますか（1: 予約, 2: キャンセル）");
         int type = scanner.nextInt();
         if(type == 1) {
             System.out.print("部屋タイプを選んでください（standard / suite）: ");
-            String roomType = scanner.nextLine();
+            String roomType = scanner.next();
 
             if (!control.isValidRoomType(roomType)) {
                 System.out.println("無効な部屋タイプが指定されました。");
@@ -106,17 +124,17 @@ public class RoomReservationScreen {
             control.displayPrice(roomType);
 
             System.out.print("名前を入力してください: ");
-            String name = scanner.nextLine();
+            String name = scanner.next();
 
             System.out.print("メールアドレスを入力してください: ");
-            String email = scanner.nextLine();
+            String email = scanner.next();
 
             System.out.print("予約日を入力してください（例: 2025/06/27）: ");
-            String date = scanner.nextLine();
+            String date = scanner.next();
 
             Reservation reservation = control.makeReservation(date, name, email, roomType);
             if (reservation != null) {
-                reservation.create();
+                reservation.info();
             }
         }else{
             System.out.print("名前を入力してください: ");
@@ -126,7 +144,14 @@ public class RoomReservationScreen {
             int roomNumber = scanner.nextInt();
 
             Reservation reservation = control.findReservation(name, roomNumber);
-            control.deleteReservation(reservation);
+
+            reservation.info();
+
+            System.out.println("本当にキャンセルしまか(true/[false])");
+            boolean cancel = scanner.nextBoolean();
+            if(cancel){
+                control.deleteReservation(reservation);
+            }
         }
 
             scanner.close();
