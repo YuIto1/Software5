@@ -18,3 +18,4 @@
 
 # カンバン
 ![カンバン](https://github.com/YuIto1/Software5/blob/main/HRS/Review/%E3%82%AB%E3%83%B3%E3%83%90%E3%83%B3.jpg)
+![カンバン最新](https://github.com/YuIto1/Software5/blob/main/HRS/Review/%E3%82%AB%E3%83%B3%E3%83%90%E3%83%B3%E6%9C%80%E6%96%B0.jpg)
