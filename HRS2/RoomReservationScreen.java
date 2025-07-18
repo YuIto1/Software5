@@ -91,32 +91,45 @@ public class RoomReservationScreen {
             return;
         }
 
-        System.out.print("部屋タイプを選んでください（standard / suite）: ");
-        String roomType = scanner.nextLine();
+        System.out.println("何をしますか（1: 予約, 2: キャンセル）");
+        int type = scanner.nextInt();
+        if(type == 1) {
+            System.out.print("部屋タイプを選んでください（standard / suite）: ");
+            String roomType = scanner.nextLine();
 
-        if (!control.isValidRoomType(roomType)) {
-            System.out.println("無効な部屋タイプが指定されました。");
+            if (!control.isValidRoomType(roomType)) {
+                System.out.println("無効な部屋タイプが指定されました。");
+                scanner.close();
+                return;
+            }
+
+            control.displayPrice(roomType);
+
+            System.out.print("名前を入力してください: ");
+            String name = scanner.nextLine();
+
+            System.out.print("メールアドレスを入力してください: ");
+            String email = scanner.nextLine();
+
+            System.out.print("予約日を入力してください（例: 2025/06/27）: ");
+            String date = scanner.nextLine();
+
+            Reservation reservation = control.makeReservation(date, name, email, roomType);
+            if (reservation != null) {
+                reservation.create();
+            }
+        }else{
+            System.out.print("名前を入力してください: ");
+            String name = scanner.next();
+
+            System.out.print("部屋番号を入力してください: ");
+            int roomNumber = scanner.nextInt();
+
+            Reservation reservation = control.findReservation(name, roomNumber);
+            control.deleteReservation(reservation);
+        }
+
             scanner.close();
-            return;
-        }
-
-        control.displayPrice(roomType);
-
-        System.out.print("名前を入力してください: ");
-        String name = scanner.nextLine();
-
-        System.out.print("メールアドレスを入力してください: ");
-        String email = scanner.nextLine();
-
-        System.out.print("予約日を入力してください（例: 2025/06/27）: ");
-        String date = scanner.nextLine();
-
-        Reservation reservation = control.makeReservation(date, name, email, roomType);
-        if (reservation != null) {
-            reservation.create();
-        }
-
-        scanner.close();
     }
 
     public static void main(String[] args) {
