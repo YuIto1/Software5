@@ -127,7 +127,7 @@ public class RoomReservationControl {
 
         System.out.println("予約一覧：");
         for (Reservation r : reservations) {
-            System.out.println("- " + r.roomNumber + "号室：" + r.customerName + "（" + r.date + "）");
+            r.info();
         }
     }
 
@@ -224,6 +224,15 @@ public class RoomReservationControl {
         return null;
     }
 
+    public Reservation findReservation(int reservationId){
+        for (Reservation reservation : reservations) {
+            if(reservation.reservationId == reservationId) {
+                return reservation;
+            }
+        }
+        return null;
+    }
+
     public void deleteReservation(Reservation reservation){
         Iterator<Reservation> iterator = reservations.iterator();
         while (iterator.hasNext()) {
@@ -238,6 +247,7 @@ public class RoomReservationControl {
             }
         }
     }
+
     public void editReservation(Reservation reservation, String customerName, String customerEmail, String date, int roomNumber){
         for (Reservation reservation0 : reservations) {
             if (reservation0.getRoomNumber() == reservation.getRoomNumber() && reservation0.getCustomerName().equals(reservation.getCustomerName())){
@@ -266,10 +276,17 @@ public class RoomReservationControl {
         }
     }
 
+    public void checkIn(Reservation reservation){
+        reservation.setCheckIn(1);
+        saveReservationsToFile("reservation.csv");
+    }
 
-
-
-
+    public void checkOut(Reservation reservation){
+        reservation.setCheckIn(2);
+        Room room = findRoomByNumber(reservation.getRoomNumber());
+        room.unsetReserve();
+        saveReservationsToFile("reservation.csv");
+    }
 
 
     // 予約リストをファイルに保存
@@ -277,7 +294,8 @@ public class RoomReservationControl {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (Reservation r : reservations) {
                 // CSV形式で書き出し（カンマ区切り）
-                writer.write(r.date + "," + r.customerName + "," + r.customerEmail + "," + r.roomNumber);
+
+                writer.write(r.date + "," + r.customerName + "," + r.customerEmail + "," + r.roomNumber + "," + r.checkIn + "," + r.reservationId);
                 writer.newLine();
             }
             System.out.println("予約をファイルに保存しました: " + filename);
@@ -295,15 +313,18 @@ public class RoomReservationControl {
             while ((line = reader.readLine()) != null) {
                 // CSVをカンマで分割
                 String[] parts = line.split(",", -1);
-                if (parts.length == 4) {
+                if (parts.length == 6) {
                     String date = parts[0];
                     String name = parts[1];
                     String email = parts[2];
                     int roomNumber = Integer.parseInt(parts[3]);
+                    int checkIn = Integer.parseInt(parts[4]);
+                    int reservationId = Integer.parseInt(parts[5]);
                     Room room = findRoomByNumber(roomNumber);
                     if (room != null){
                         String roomType = room.getRoomType();
-                        Reservation r = new Reservation(date, name, email, roomNumber, roomType);
+                        Reservation r = new Reservation(date, name, email, roomNumber, roomType, reservationId);
+                        r.setCheckIn(checkIn);
                         reservations.add(r);
                     }
                 }
