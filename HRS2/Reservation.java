@@ -1,6 +1,9 @@
 import java.util.Random;
+import java.util.regex.*;
 public class Reservation {
     public String date;
+    public int dateStart;
+    public int dateEnd;
     public String customerName;
     public String customerEmail;
     public int roomNumber;
@@ -10,6 +13,7 @@ public class Reservation {
 
     public Reservation(String date, String customerName, String customerEmail, int roomNumber, String roomType, int reservationId) {
         this.date = date;
+        setDateNum(date);
         this.customerName = customerName;
         this.customerEmail = customerEmail;
         this.roomNumber = roomNumber;
@@ -20,12 +24,31 @@ public class Reservation {
 
     public Reservation(String date, String customerName, String customerEmail, int roomNumber, String roomType){
         this.date = date;
+        setDateNum(date);
         this.customerName = customerName;
         this.customerEmail = customerEmail;
         this.roomNumber = roomNumber;
         this.roomType = roomType;
         this.checkIn = 0;
         setReservationNumber();
+    }
+
+    public void setDateNum(String date){
+        String pattern = "(\\d{4})/(\\d{2})/(\\d{2})-(\\d{4})/(\\d{2})/(\\d{2})";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(date);
+
+        if (matcher.matches()) {
+            int y1 = Integer.parseInt(matcher.group(1));                
+            int m1 = Integer.parseInt(matcher.group(2));
+            int d1 = Integer.parseInt(matcher.group(3));
+            int y2 = Integer.parseInt(matcher.group(4));
+            int m2 = Integer.parseInt(matcher.group(5));
+            int d2 = Integer.parseInt(matcher.group(6));
+
+            this.dateStart = y1 * 32 * 32 + m1 * 32 + d1;
+            this.dateEnd   = y2 * 32 * 32 + m2 * 32 + d2;
+            } 
     }
 
     public void setReservationNumber(){

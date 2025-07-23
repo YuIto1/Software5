@@ -2,18 +2,17 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.regex.*;
 
 public class RoomReservationControl {
 
     private List<Reservation> reservations;
-    private List<Room> rooms;
     private StandardRoom standardRoom;
     private SuiteRoom suiteRoom;
     private String standardRoomFile = "standardRoom.csv";
     private String suiteRoomFile = "suiteRoom.csv";
 
     public RoomReservationControl() {
-        rooms = new ArrayList<>();
         reservations = new ArrayList<>();
         standardRoom = new StandardRoom(loadRoomsFromFile(standardRoomFile));
         suiteRoom = new SuiteRoom(loadRoomsFromFile(suiteRoomFile));
@@ -51,7 +50,7 @@ public class RoomReservationControl {
             System.out.println("無効な部屋種別です");
         }
 
-        Room room = roomType.assignAvailableRoom();
+        Room room = roomType.assignAvailableRoom(calcDateNum(date));
 
         if (room == null) {
             System.out.println("空室がありません。予約できませんでした。");
@@ -63,6 +62,27 @@ public class RoomReservationControl {
         saveReservationsToFile("reservation.csv");
         saveRoomsToFile(file, roomType);
         return reservation;
+    }
+
+    public int[] calcDateNum(String date){
+        int[] dateNum = new int[2];
+
+        String pattern = "(\\d{4})/(\\d{2})/(\\d{2})-(\\d{4})/(\\d{2})/(\\d{2})";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(date);
+
+        if (matcher.matches()) {
+            int y1 = Integer.parseInt(matcher.group(1));                
+            int m1 = Integer.parseInt(matcher.group(2));
+            int d1 = Integer.parseInt(matcher.group(3));
+            int y2 = Integer.parseInt(matcher.group(4));
+            int m2 = Integer.parseInt(matcher.group(5));
+            int d2 = Integer.parseInt(matcher.group(6));
+
+            dateNum[0] = y1 * 32 * 32 + m1 * 32 + d1;
+            dateNum[1] = y2 * 32 * 32 + m2 * 32 + d2;
+        } 
+        return dateNum;
     }
 
     public void addRoom(int roomNumber, String requestedType, String roomInformation){
@@ -139,7 +159,7 @@ public class RoomReservationControl {
         while (iterator.hasNext()) {
             Room room = iterator.next();
             if (room.getRoomNumber() == roomNumber) {
-                if (room.getIsReserved()){
+                if (!room.getReserved().isEmpty()){
                     System.out.println("予約されているため削除できません");
                     return;
                 }
@@ -157,7 +177,7 @@ public class RoomReservationControl {
         while (iterator.hasNext()) {
             Room room = iterator.next();
             if (room.getRoomNumber() == roomNumber) {
-                if (room.getIsReserved()){
+                if (!room.getReserved().isEmpty()){
                     System.out.println("予約されているため削除できません");
                     return;
                 }
@@ -185,7 +205,7 @@ public class RoomReservationControl {
             while (iterator.hasNext()) {
                 Room room = iterator.next();
                 if (room.getRoomNumber() == roomNumber){
-                    if (room.getIsReserved()){
+                    if (!room.getReserved().isEmpty()){
                         System.out.println("予約されているため削除できません");
                         return;
                     }
@@ -239,7 +259,7 @@ public class RoomReservationControl {
             Reservation reservation0 = iterator.next();
             if (reservation0.getRoomNumber() == reservation.getRoomNumber() && reservation0.getCustomerName().equals(reservation.getCustomerName())) {
                 Room room = findRoomByNumber(reservation0.getRoomNumber());
-                room.unsetReserve();
+                room.unsetReserve(reservation.getDate());
                 iterator.remove();
                 saveReservationsToFile("reservation.csv");
                 saveRoomsToFile(standardRoomFile, standardRoom);
@@ -252,6 +272,7 @@ public class RoomReservationControl {
         for (Reservation reservation0 : reservations) {
             if (reservation0.getRoomNumber() == reservation.getRoomNumber() && reservation0.getCustomerName().equals(reservation.getCustomerName())){
                 int oldRoomNumber = reservation0.getRoomNumber();
+                String oldDate = reservation0.date;
                 reservation0.date = date;
                 reservation0.customerName = customerName;
                 reservation0.customerEmail = customerEmail;
@@ -259,17 +280,19 @@ public class RoomReservationControl {
                 if (room != null){
                     if (oldRoomNumber != roomNumber) {
                         Room oldRoom = findRoomByNumber(oldRoomNumber);
-                        if (room.getIsReserved()){
+                        if (!room.getIsEmpty(date)){
                             System.out.println("その部屋は予約されています");
                         }else{
                             reservation0.roomNumber = roomNumber;
                             reservation0.roomType = room.getRoomType();
-                            oldRoom.unsetReserve();
-                            room.setReserve();
+                            oldRoom.unsetReserve(oldDate);
+                            room.setReserve(date);
                             saveRoomsToFile(standardRoomFile, standardRoom);
                             saveRoomsToFile(suiteRoomFile, suiteRoom);
                         }
                     }
+                } else {
+                    System.out.println("部屋番号が無効です");
                 }
                 saveReservationsToFile("reservation.csv");
             }
@@ -284,7 +307,8 @@ public class RoomReservationControl {
     public void checkOut(Reservation reservation){
         reservation.setCheckIn(2);
         Room room = findRoomByNumber(reservation.getRoomNumber());
-        room.unsetReserve();
+        String date = reservation.getDate();
+        room.unsetReserve(date);
         saveReservationsToFile("reservation.csv");
     }
 
@@ -304,14 +328,12 @@ public class RoomReservationControl {
         }
     }
 
-    // ファイルから予約リストを読み込む
     public void loadReservationsFromFile(String filename) {
         reservations.clear(); // 読み込み前にクリア
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // CSVをカンマで分割
                 String[] parts = line.split(",", -1);
                 if (parts.length == 6) {
                     String date = parts[0];
@@ -326,6 +348,7 @@ public class RoomReservationControl {
                         Reservation r = new Reservation(date, name, email, roomNumber, roomType, reservationId);
                         r.setCheckIn(checkIn);
                         reservations.add(r);
+                        room.setReserve(date);
                     }
                 }
             }
@@ -341,7 +364,7 @@ public class RoomReservationControl {
     public void saveRoomsToFile(String filename, RoomType roomType) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (Room room : roomType.getRooms()) {
-                writer.write(room.getRoomNumber() + "," + room.getRoomType() + "," + room.getIsReserved() + "," + room.getInformation());
+                writer.write(room.getRoomNumber() + "," + room.getRoomType() + "," + "reservation" + "," + room.getInformation());
                 writer.newLine();
             }
             System.out.println("部屋情報を保存しました: " + filename);
@@ -360,14 +383,10 @@ public class RoomReservationControl {
                 if (parts.length >= 4) {
                     int roomNumber = Integer.parseInt(parts[0]);
                     String roomType = parts[1];
-                    boolean isReserved = Boolean.parseBoolean(parts[2]);
                     String roomInformation = parts[3];
 
                     if (isValidRoomType(roomType)) {
                         Room room = new Room(roomNumber, roomType, roomInformation);
-                        if (isReserved) {
-                            room.setReserve();
-                        }
                         roomsOut.add(room);
                     } else {
                         System.err.println("不正な部屋タイプ: " + roomType);

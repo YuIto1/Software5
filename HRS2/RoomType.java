@@ -17,10 +17,25 @@ public abstract class RoomType {
         }
     }
 
-    public Room assignAvailableRoom() {
+    public Room assignAvailableRoom(int[] dateNum) {
+        int dateStart = dateNum[0];
+        int dateEnd = dateNum[1];
         for (Room room : rooms) {
-            if (!room.getIsReserved()) {
-                room.setReserve();
+            boolean isEmpty = true;
+
+            for (int[] pair : room.getReserved()) {
+                int start = pair[0];
+                int end = pair[1];
+                int maxStart = Math.max(start, dateStart);
+                int minEnd = Math.min(end, dateEnd);
+                if (maxStart <= minEnd) {
+                    isEmpty = false;
+                    break;
+                }
+            }
+
+            if (isEmpty) {
+                room.setReserve(dateNum);
                 return room;
             }
         }
