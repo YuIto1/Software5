@@ -107,7 +107,7 @@ public class RoomReservationScreen {
                         System.out.print("予約する日付（例: 2025/06/27-2025/06/29）: ");
                         String date = scanner.next();
 
-                        while (!date.matches(datePattern) || ) {
+                        while (!date.matches(datePattern)) {
                             System.out.println("入力形式が間違えています。");
                             System.out.println("予約日を入力してください（例: 2025/06/27-2025/06/29）: ");
                             date = scanner.nextLine();
@@ -157,6 +157,30 @@ public class RoomReservationScreen {
                 }else{
                     System.out.println("予約番号が正しくありません");
                 }
+
+            }else if(op == 6){
+                System.out.println("検索条件を入れてください");
+                System.out.println("条件設定したくない場合はそのままエンターキーを押してください");
+                System.out.println("");
+                System.out.print("日程を入力してください（例: 2025/06/27-2025/06/29）: ");
+                String date = scanner.nextLine();
+                date = scanner.nextLine();
+
+                while (!date.matches(datePattern) && !date.equals("")) {
+                    System.out.println("入力形式が間違えています。");
+                    System.out.print("日程を入力してください（例: 2025/06/27-2025/06/29）: ");
+                    date = scanner.nextLine();
+                }
+
+                System.out.print("部屋種別を入力してください（standard または suite）: ");
+                String roomType = scanner.nextLine();
+
+                if (!control.isValidRoomType(roomType)) {
+                    System.out.println("無効な部屋タイプが指定されました。");
+                    roomType = "";
+                }
+
+                control.searchRoom(date, roomType);
 
             }else{
                 System.out.println("番号が正しくありません");
@@ -227,9 +251,31 @@ public class RoomReservationScreen {
             } else {
                 System.out.println("無効な予約番号です");
             }
+        }else if(type == 3){
+            System.out.println("検索条件を入れてください");
+            System.out.println("条件設定したくない場合はそのままエンターキーを押してください");
+            System.out.println("");
+            System.out.print("日程を入力してください（例: 2025/06/27-2025/06/29）: ");
+            String date = scanner.nextLine();
+            date = scanner.nextLine();
+
+            while (!date.matches(datePattern) && !date.equals("")) {
+                System.out.println("入力形式が間違えています。");                    System.out.print("日程を入力してください（例: 2025/06/27-2025/06/29）: ");
+                date = scanner.nextLine();
+            }
+
+            System.out.print("部屋種別を入力してください（standard または suite）: ");
+            String roomType = scanner.nextLine();
+
+            if (!control.isValidRoomType(roomType)) {
+                System.out.println("無効な部屋タイプが指定されました。");
+                roomType = "";
+            }
+
+            control.searchRoom(date, roomType);
         }
 
-            scanner.close();
+        scanner.close();
     }
 
     public static void main(String[] args) {

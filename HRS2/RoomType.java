@@ -16,7 +16,6 @@ public abstract class RoomType {
             this.rooms = rooms;
         }
     }
-    
 
     public Room assignAvailableRoom(int[] dateNum) {
         int dateStart = dateNum[0];

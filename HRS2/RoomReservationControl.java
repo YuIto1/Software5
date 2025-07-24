@@ -151,6 +151,22 @@ public class RoomReservationControl {
         }
     }
 
+    public void searchRoom(String date, String roomType){
+        List<Room> rooms = new ArrayList<>();
+        rooms.addAll(standardRoom.getRooms());
+        rooms.addAll(suiteRoom.getRooms());
+
+        for (Room room : rooms) {
+            if (!roomType.equals("") && !room.getRoomType().equals(roomType)) {
+                continue;
+            }
+            if (!date.equals("") && !room.getIsEmpty(date)) {
+                continue;
+            }
+            room.info();
+        }
+    }
+
     public void deleteRoom(int roomNumber){
         List<Room> targetRooms = standardRoom.getRooms();
         String file = standardRoomFile;
